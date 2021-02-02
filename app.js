@@ -1,9 +1,26 @@
 const express = require('express');
 const app = express();
 const path = require('path');
+const morgan = require('morgan');
 const PORT = 8080;
 const mongoose = require('mongoose');
 const User = require('./models/user');
+
+
+/**
+ * Serve static files from public folder on every request
+ * this part runs for EVERY request
+ * These are also middle ware that call next() automatically
+ */
+app.use(morgan('tiny'));
+app.use(express.static('public'))
+app.use(express.json())
+app.use(express.urlencoded({extended:true}))
+/**
+ * All App use END
+ */
+
+
 /**
  * Connecting mongoDB
  */
@@ -12,37 +29,16 @@ mongoose.connect('mongodb://localhost:27017/forteDB',{
     useCreateIndex:true,
     useUnifiedTopology:true
 });
-
 const db = mongoose.connection;
 db.on('error',console.error.bind(console,'Database connection error'))
 db.once('open',()=>{
     console.log('MongoDB connected');
 })
-
-
-app.listen(PORT,()=>{
-    console.log("Forte Api server live on port:",PORT);
-})
-
-/*every request goes through this irrespective of route
-so we can add any checks here like
-
-Headers
-Authorizaition
-Validators
- app.use(function(req,res){
-      console.log("In app use",req)
-      res.send({success:true,message:"I got you"});
- })
-*/
-
-app.use(express.static('public'))
-console.log(process.env.NODE_ENV)
 /**
- * For parsing different kinds of data types
+ * Connecting mongoDB END
  */
-app.use(express.json())
-app.use(express.urlencoded({extended:true}))
+
+
 
 /*
 Routes
@@ -62,19 +58,33 @@ app.get('/user/:id',async(req,res)=>{
     const {id} = req.params;
     let user = await User.findById(id);
     res.send({user:user});
-    
 })
 
 /**
- * * Add user
- * */
-    
+ * * Add user | Signup
+ * */    
 app.post('/user',async (req,res)=>{
     let user = new User(req.body);
-    let resp = await user.save();
-    console.log(resp);
-    res.json(resp);
+    let savedResponse = await user.save();
+    res.json({success:true,data:savedResponse});
+})
 
+/**
+ * User Login
+ */
+app.post('/user/login',async (req,res)=>{
+    try{
+        console.log(req.body);
+        let user = await User.findOne({email:req.body.email,password:req.body.password});
+        console.log(user);
+        if(user){
+            res.json({success:true,data:user});
+        }
+        res.json({success:false});
+    }catch(err){
+        res.json({success:false});
+    }
+    
 })
 
 /**
@@ -113,4 +123,8 @@ app.patch('/user/:id',async(req,res)=>{
 //Keep at the very end always
 app.get('*',(req,res)=>{
     res.status(404).send("Naah")
+})
+
+app.listen(PORT,()=>{
+    console.log("Forte Api server live on port:",PORT);
 })
