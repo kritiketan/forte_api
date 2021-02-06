@@ -18,7 +18,9 @@
   },
   "homepage": "https://github.com/kritiketan/forte_api#readme",
   "dependencies": {
+    "bcrypt": "^5.0.0",
     "express": "^4.17.1",
+    "joi": "^17.3.0",
     "mongoose": "^5.11.14",
     "morgan": "^1.10.0"
   }
