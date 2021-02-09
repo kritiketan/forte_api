@@ -10,6 +10,8 @@ const User = require('./models/user');
 const logger = require('morgan');
 const dotenv = require('dotenv');
 const session = require('express-session');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const MongoStore = require('connect-mongo')(session);
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
@@ -19,9 +21,6 @@ const lusca = require('lusca');
 const errorHandler = require('errorhandler');
 
 dotenv.config({ path: '.env' });
-/**
- * API keys and Passport configuration.
- */
 const passportConfig = require('./config/passport');
 
 /**
@@ -53,7 +52,15 @@ app.use(logger('dev'));
 app.use(express.static('public'))
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
-
+app.use(cors(
+    {   
+        origin:"*",
+        methods:"GET,HEAD,PUT,PATCH,POST,DELETE",
+        allowedHeaders:'Content-Type,Authorization',
+        credentials:true
+    }
+))
+app.use(cookieParser());
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave:true,
@@ -62,6 +69,7 @@ app.use(session({
     store: new MongoStore({
         url: process.env.MONGODB_URI,
         autoReconnect: true,
+        collection: 'sessions'
       })
 }));
 app.use(passport.initialize());
@@ -69,6 +77,9 @@ app.use(passport.session());
 // app.use(lusca.xframe('SAMEORIGIN'));
 // app.use(lusca.xssProtection(true));
 // app.disable('x-powered-by');
+/**
+ * API keys and Passport configuration.
+ */
 
 
 // app.use((req, res, next) => {
@@ -86,12 +97,11 @@ app.use(passport.session());
 //     next();
 //   });
 
-//Route Declaration
 app.use('/auth',authRoutes);
-app.use('/user',userRoutes);
-
-
-
+app.use('/user',passportConfig.isAuthenticated,userRoutes);
+app.get('/secret',passportConfig.isAuthenticated,function(req,res,next){
+    res.send('Alrighty')
+})
 /**
  * Error handling
  */
@@ -103,7 +113,7 @@ app.use((err,req,res,next)=>{
 
 /**
  * Error Handler.
- */
+ 
 
 if (process.env.NODE_ENV === 'development') {
     // only use in development
@@ -114,7 +124,7 @@ if (process.env.NODE_ENV === 'development') {
       res.status(500).send('Server Error');
     });
   }
-  
+ */ 
 
 /**
  * Start Express server.

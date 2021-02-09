@@ -4,18 +4,22 @@ const User = require('../models/user');
 const validator = require('validator');
 
 exports.login = (req, res, next) => {
-    
   passport.authenticate('local', (err, user, info) => {
         if (err) { 
-          let err = new Error({message:'User does not exist'});
+          let err = new Error('Something went wrong');
           return next(err); 
         }
         if (!user) {
-          let errInfo = new Error('User does not exist');
-          return next(errInfo);
+          return res.send({
+            success:false,
+        })
+          // let errInfo = new Error('User does not exist');
+          // return next(errInfo);
         }
-        req.login(user, (err) => {
+        req.logIn(user, (err) => {
         if (err)return next(err)
+        
+        res.cookie('name','test');
         return res.send({
             success:true,
             user:user
@@ -32,13 +36,15 @@ exports.login = (req, res, next) => {
  * Log out.
  */
 exports.logout = (req, res) => {
+  console.log("destroying the sesh");
     req.logout();
     req.session.destroy((err) => {
       if (err) console.log('Error : Failed to destroy the session during logout.', err);
       req.user = null;
-      return {
+      
+      res.send({
         success:true
-      }
+      })
     });
   };
 
@@ -62,7 +68,7 @@ exports.signup = async (req, res, next) => {
       return next(err);
     }
       let registeredUser = await user.save();
-      req.login(registeredUser,(err) => {
+      req.logIn(registeredUser,(err) => {
         if(err)next(err);
       })
       res.send({
