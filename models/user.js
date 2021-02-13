@@ -17,6 +17,30 @@ const userSchema = new Schema({
     },
     phone:{
         type:String
+    },
+    bio:{
+        type:String
+    },
+    location:{
+        type:String
+    },
+    website:{
+        urlSlash:{
+            type:String,
+            default:''
+        },
+        urlDomain:{
+            type:String,
+            default:''
+        },
+        custom:{
+            type:String,
+            default:''
+        },
+        personal:{
+            type:String,
+            default:''
+        }
     }
 }, { timestamps: true })
 
