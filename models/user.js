@@ -24,23 +24,16 @@ const userSchema = new Schema({
     location:{
         type:String
     },
-    website:{
-        urlSlash:{
-            type:String,
-            default:''
-        },
-        urlDomain:{
-            type:String,
-            default:''
-        },
-        custom:{
-            type:String,
-            default:''
-        },
-        personal:{
-            type:String,
-            default:''
-        }
+    slashUrl:{
+        type:String
+    },
+    domainUrl:{
+        type:String,
+        default:'UNASSIGNED'
+    },
+    isActive:{
+        type:Boolean,
+        default:true
     }
 }, { timestamps: true })
 
