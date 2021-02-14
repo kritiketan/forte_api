@@ -1,5 +1,5 @@
 const User = require('../models/user');
-
+const commonService = require('../util/commonService');
 
 /**
  * POST /signup
@@ -46,10 +46,17 @@ exports.checkDomainAvailable = async (req, res, next) => {
     }else{
         updatedUser = domainExists;
         domainExists = true;
-        //generate url options
-        options.push("Option1")
-        options.push("Option2")
-        options.push("Option2")
+        //check if any of the new options also match a string in db
+        let generatedNames = await commonService.usernameGenerator(req.user);
+        for(let url of generatedNames){
+          let taken = await User.findOne({domainUrl:url}).exec();
+          if(!taken){
+            console.log("in here",url)
+            options.push(url)
+          }
+          if(options.length == 4)break;
+        }
+        
     }
     
     res.send({
