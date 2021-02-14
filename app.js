@@ -4,6 +4,7 @@ const path = require('path');
 //Routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
+const portfolioRoutes = require('./routes/portfolio');
 const User = require('./models/user');
 
 //Packages
@@ -99,9 +100,7 @@ app.use(passport.session());
 
 app.use('/auth',authRoutes);
 app.use('/user',passportConfig.isAuthenticated,userRoutes);
-app.get('/secret',passportConfig.isAuthenticated,function(req,res,next){
-    res.send('Alrighty')
-})
+app.use('/portfolio',portfolioRoutes);
 /**
  * Error handling
  */
