@@ -11,7 +11,8 @@ const userSchema = new Schema({
     },
     email:{
         type:String,
-        unique:true
+        unique:true,
+        lowercase: true
     },
     password:{
         type:String
@@ -28,16 +29,33 @@ const userSchema = new Schema({
     },
     slashUrl:{
         type:String,
-        unique:true
+        unique:true,
+        lowercase: true
     },
     domainUrl:{
         type:String,
-        unique:true
+        unique:true,
+        lowercase: true
     },
     isActive:{
         type:Boolean,
         default:true
-    }
+    },
+    linkedinURL:{
+        type:String
+    },
+    githubURL:{
+        type:String
+    },
+    instagramURL:{
+        type:String
+    },
+    facebookURL:{
+        type:String
+    },
+    mediumURL:{
+        type:String
+    },
 }, { timestamps: true })
 
 
