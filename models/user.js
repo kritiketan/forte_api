@@ -10,7 +10,8 @@ const userSchema = new Schema({
         type:String
     },
     email:{
-        type:String
+        type:String,
+        unique:true
     },
     password:{
         type:String
@@ -19,17 +20,19 @@ const userSchema = new Schema({
         type:String
     },
     bio:{
-        type:String
+        type:String,
+        default:'Building products that matter'
     },
     location:{
         type:String
     },
     slashUrl:{
-        type:String
+        type:String,
+        unique:true
     },
     domainUrl:{
         type:String,
-        default:'UNASSIGNED'
+        unique:true
     },
     isActive:{
         type:Boolean,

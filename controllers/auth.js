@@ -2,6 +2,7 @@ const Joi = require('joi');
 const passport = require('passport');
 const User = require('../models/user');
 const validator = require('validator');
+const commonService = require('../util/commonService');
 
 exports.login = (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
@@ -36,7 +37,6 @@ exports.login = (req, res, next) => {
  * Log out.
  */
 exports.logout = (req, res) => {
-  console.log("destroying the sesh");
     req.logout();
     req.session.destroy((err) => {
       if (err) console.log('Error : Failed to destroy the session during logout.', err);
@@ -59,7 +59,7 @@ exports.signup = async (req, res, next) => {
       email: req.body.email,
       password: req.body.password,
       firstName:req.body.firstName,
-      lastName:req.body.lastName || ''
+      lastName:req.body.lastName || '',
     });
 
     let existingUser = await User.findOne({ email: req.body.email });
@@ -67,6 +67,11 @@ exports.signup = async (req, res, next) => {
       let err = new Error({message:'User already exists'});
       return next(err);
     }
+
+    let url = await createDomainUrl(req.body.firstName,req.body.lastName);
+    user.slashUrl = url;
+    user.domainUrl = url;
+      
       let registeredUser = await user.save();
       req.logIn(registeredUser,(err) => {
         if(err)next(err);
@@ -82,6 +87,18 @@ exports.signup = async (req, res, next) => {
   
 };
 
+async function createDomainUrl(firstName,lastName){
+  let domainExists = await User.findOne({domainUrl:firstName}).exec();
+  if(domainExists){
+    let generatedNames = await commonService.usernameGenerator(firstName,lastName)
+    for(let url of generatedNames){
+      let taken = await User.findOne({domainUrl:url}).exec();
+      if(!taken){
+        return url;
+      }
+    }
+  }
+}
 
 exports.forgot = (req,res,next)=>{
 

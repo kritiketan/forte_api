@@ -47,7 +47,7 @@ exports.checkDomainAvailable = async (req, res, next) => {
         updatedUser = domainExists;
         domainExists = true;
         //check if any of the new options also match a string in db
-        let generatedNames = await commonService.usernameGenerator(req.user);
+        let generatedNames = await commonService.usernameGenerator(req.user.firstName,req.user.lastName);
         for(let url of generatedNames){
           let taken = await User.findOne({domainUrl:url}).exec();
           if(!taken){
@@ -67,6 +67,5 @@ exports.checkDomainAvailable = async (req, res, next) => {
   }catch(err){
     return next(err);
   }
-  
   
 };
