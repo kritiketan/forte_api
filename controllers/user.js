@@ -1,5 +1,6 @@
 const User = require('../models/user');
 const commonService = require('../util/commonService');
+const emailHelper = require('../util/emailHelper');
 
 /**
  * POST /signup
@@ -7,7 +8,7 @@ const commonService = require('../util/commonService');
  */
 exports.update = async (req, res, next) => {
     try{
-      //Add validation
+      
       let existingUser = await User.findOne({ email: req.body.email });
       if(!existingUser || !existingUser._id){
         let err = new Error({message:'User does not already exists'});
@@ -36,12 +37,11 @@ exports.checkDomainAvailable = async (req, res, next) => {
       let err = new Error({message:'User does not already exists'});
       return next(err);
     }
-    console.log('domain',req.body)
     let domainExists = await User.findOne({domainUrl:req.body.domainUrl}).exec();
     let updatedUser={};
     let options =[];
     if(!domainExists){
-        updatedUser = await User.findByIdAndUpdate(req.user._id,{domainUrl:req.body.domainUrl},{new:true});
+        updatedUser = await User.findByIdAndUpdate(req.user._id,{domainUrl:req.body.domainUrl,slashUrl:req.body.domainUrl},{new:true});
         domainExists = false;
     }else{
         updatedUser = domainExists;
@@ -51,7 +51,6 @@ exports.checkDomainAvailable = async (req, res, next) => {
         for(let url of generatedNames){
           let taken = await User.findOne({domainUrl:url}).exec();
           if(!taken){
-            console.log("in here",url)
             options.push(url)
           }
           if(options.length == 4)break;
