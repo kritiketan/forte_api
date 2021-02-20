@@ -1,3 +1,6 @@
+
+const bcrypt = require('bcrypt');
+
 const usernameExtensions = [
     'x','nest','verse','n','sy','ella','sio','iva','que'
 ]
@@ -21,7 +24,14 @@ let usernameGenerator = async function(firstName,lastName){
     return usernameArray;
 } 
 
+let encryptPassword = async function(passwordString){
+    const salt = await bcrypt.genSalt(12);
+    const hash = await bcrypt.hash(passwordString,salt);
+    return hash;
+}
+
 
 module.exports = {
-    usernameGenerator
+    usernameGenerator,
+    encryptPassword
 }

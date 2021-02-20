@@ -17,6 +17,9 @@ const userSchema = new Schema({
     password:{
         type:String
     },
+    passChangeToken:{
+        type:String
+    },
     phone:{
         type:String
     },
@@ -56,6 +59,7 @@ const userSchema = new Schema({
     mediumURL:{
         type:String
     },
+    
 }, { timestamps: true })
 
 
@@ -67,6 +71,7 @@ userSchema.virtual('fullName')
 userSchema.pre('save',async function(next){
     try{
         const user = this;
+        console.log()
         if (!user.isModified('password')) { return next(); }//Check if this works
         const salt = await bcrypt.genSalt(12);
         const hash = await bcrypt.hash(user.password,salt);

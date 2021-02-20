@@ -5,6 +5,9 @@ const passportConfig = require('./../config/passport');
 
 
 router.post('/login',authController.login)
+router.post('/forgot',authController.forgotPassword)
+router.post('/changePassword',authController.changePassword)
+router.post('/linkedin',authController.linkedinLogin)
 router.post('/signup',authController.signup)
 router.get('/logout',authController.logout)
 router.post('/forgot',authController.signup)

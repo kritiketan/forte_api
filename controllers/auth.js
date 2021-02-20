@@ -3,6 +3,7 @@ const passport = require('passport');
 const User = require('../models/user');
 const validator = require('validator');
 const commonService = require('../util/commonService');
+const { Passport } = require('passport');
 
 exports.login = (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
@@ -29,8 +30,78 @@ exports.login = (req, res, next) => {
     })(req, res, next);
   };
 
-  
+  exports.forgotPassword = async (req,res,next) =>{
+    try{
+      let existingUser = await User.findOne({ email: req.body.email });
+      if(!existingUser || !existingUser._id){
+        let err = new Error({message:'User does not exists'});
+        return next(err);
+      }
+      let token = Math.random().toString(16).substr(6);
+      existingUser = await User.findByIdAndUpdate(existingUser._id,{password:'UNASSIGNED',passChangeToken:token},{new :true})
+      //TODO: Send email with token
+        return res.send({
+          success:true,
+          token:token,
+          message:"Password reset email sent successfully. Please check the email for further instructions."
+        })
+      
+      }catch(err){
+        return next(err);
+    } 
+  }
 
+  exports.changePassword = async (req,res,next) => {
+    try{
+      let userCondition = { 
+        email: req.body.email,
+        password:'UNASSIGNED',
+        passChangeToken:req.body.token 
+      }
+
+      let existingUser = await User.findOne(userCondition);
+      if(!existingUser || !existingUser._id){
+        let err = new Error({message:'User does not exists'});
+        return next(err);
+      }
+      let update = {
+        passChangeToken:'',
+        password: await commonService.encryptPassword(req.body.password) 
+      }
+      existingUser = await User.findByIdAndUpdate(existingUser._id,update,{new :true})
+      //TODO: Send email with password change success
+        return res.send({
+          success:true,
+          message:"Password update successful. Login to continue."
+        })
+      
+      }catch(err){
+        return next(err);
+    }
+  }
+/**
+ * OAuth Strategy Overview
+ *
+ * - User is already logged in.
+ *   - Check if there is an existing account with a provider id.
+ *     - If there is, return an error message. (Account merging not supported)
+ *     - Else link new OAuth account with currently logged-in user.
+ * - User is not logged in.
+ *   - Check if it's a returning user.
+ *     - If returning user, sign in and we are done.
+ *     - Else check if there is an existing account with user's email.
+ *       - If there is, return an error message.
+ *       - Else create a new account.
+ */
+
+/**
+ * Linkedin Login
+ 
+ */
+
+exports.linkedinLogin = (req,res,next) => {
+
+}
 
 /**
  * GET /logout
@@ -98,12 +169,4 @@ async function createDomainUrl(firstName,lastName){
       }
     }
   }
-}
-
-exports.forgot = (req,res,next)=>{
-
-}
-
-exports.reset = (req,res,next)=>{
-
 }
