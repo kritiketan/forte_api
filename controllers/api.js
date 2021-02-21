@@ -33,7 +33,6 @@ exports.linkedinActions = async (code)=>{
                     accessToken:token.access_token,
                     expiresOn:moment().add(token.expires_in, 'seconds').format(),
                 }
-                console.log(linkedinDetails)
                 return linkedinDetails;
             }
         }

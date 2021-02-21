@@ -6,15 +6,16 @@ const passport = require('passport');
 
 /*Logins*/
 router.post('/login',authController.login)
-
-router.get('/linkedin',authController.linkedinLogin)
-router.post('/linkedin/callback', authController.linkedinLoginCallback)
-
-
 router.post('/forgot',authController.forgotPassword)
 router.post('/changePassword',authController.changePassword)
 router.post('/signup',authController.signup)
 router.get('/logout',authController.logout)
+
+
+router.get('/linkedin',authController.linkedinLogin)
+router.post('/linkedin/callback', authController.linkedinLoginCallback)
+
+router.post('/social',authController.socialLogin);
 
 
 module.exports = router;

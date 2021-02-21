@@ -51,6 +51,16 @@ const userSchema = new Schema({
         accessToken:String,
         expiresOn:String
     },
+    google:{
+        authToken:String,
+        profileId:String,
+        image:String
+    },
+    facebook:{
+        authToken:String,
+        profileId:String,
+        image:String
+    },
     githubURL:{
         type:String
     },

@@ -147,6 +147,74 @@ exports.linkedinLoginCallback = async (req,res,next) => {
   
 }
 
+exports.socialLogin = async (req,res,next) => {
+  try{
+    let searchByEmail = {
+      email: req.body.email.toLowerCase()
+    } 
+    let existingUser = await User.findOne(searchByEmail);
+    if(!existingUser || !existingUser._id){
+      const user = new User({
+        email: req.body.email,
+        password: 'oauth',
+        firstName:req.body.firstName,
+        lastName:req.body.lastName || ''
+      });
+
+      if(req.body.provider == 'GOOGLE'){
+        user['google'] = {
+          authToken:req.body.authToken,
+          profileId:req.body.id,
+          image:req.body.photoUrl
+        }
+      }else if(req.body.provider == 'FACEBOOK'){
+        user['facebook'] = {
+          authToken:req.body.authToken,
+          profileId:req.body.id,
+          image:req.body.photoUrl
+        }
+      }
+
+      let url = await createDomainUrl(req.body.firstName,req.body.lastName);
+        user['slashUrl'] = url;
+        user['domainUrl'] = url;
+        existingUser = await user.save();
+    }else{
+      let update = {};
+      if(req.body.provider == 'GOOGLE'){
+        update ={
+          google:{
+            authToken:req.body.authToken,
+            profileId:req.body.id,
+            image:req.body.photoUrl
+          }
+        }
+      }else if(req.body.provider == 'FACEBOOK'){
+        update ={
+          facebook:{
+            authToken:req.body.authToken,
+            profileId:req.body.id,
+            image:req.body.photoUrl
+          }
+        }
+      }
+      existingUser = await User.findByIdAndUpdate(existingUser._id,update,{new :true})
+    }
+    req.logIn(existingUser,(err) => {
+      if(err)next(err);
+    })
+    res.send({
+      success:true,
+      user:existingUser,
+      message:'Log in successful'
+    })
+
+  }catch(error){
+    console.log(error)
+    return next(error);
+  }
+}
+
 /**
  * GET /logout
  * Log out.
