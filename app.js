@@ -48,6 +48,7 @@ db.once('open',()=>{
 /**
  * Express configuration.
  */
+
 app.set('port', process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080)
 app.use(logger('dev'));
 app.use(express.static('public'))
@@ -56,11 +57,12 @@ app.use(express.urlencoded({extended:true}))
 app.use(cors(
     {   
         origin:"*",
-        methods:"GET,HEAD,PUT,PATCH,POST,DELETE",
+        // methods:"GET,HEAD,PUT,PATCH,POST,DELETE",
         allowedHeaders:'Content-Type,Authorization',
         credentials:true
     }
 ))
+
 app.use(cookieParser());
 app.use(session({
     secret: process.env.SESSION_SECRET,

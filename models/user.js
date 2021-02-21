@@ -44,8 +44,10 @@ const userSchema = new Schema({
         type:Boolean,
         default:true
     },
-    linkedinURL:{
-        type:String
+    linkedin:{
+        url:String,
+        profileId:String,
+        accessToken:String
     },
     githubURL:{
         type:String
@@ -59,6 +61,10 @@ const userSchema = new Schema({
     mediumURL:{
         type:String
     },
+    chapterArray:{
+        type:Array,
+        default:[]
+    }
     
 }, { timestamps: true })
 

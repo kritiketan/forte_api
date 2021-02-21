@@ -11,7 +11,7 @@ exports.update = async (req, res, next) => {
       
       let existingUser = await User.findOne({ email: req.body.email });
       if(!existingUser || !existingUser._id){
-        let err = new Error({message:'User does not already exists'});
+        let err = new Error({message:'User does not exists'});
         return next(err);
       }
       let registeredUser = await User.findByIdAndUpdate(req.body._id,req.body,{new:true});
@@ -25,6 +25,30 @@ exports.update = async (req, res, next) => {
     
     
   };
+
+exports.changeAuthenticatedPassword = async (req,res,next) => {
+
+  try{
+    
+    if(!req.user || !req.user._id){
+      let err = new Error({message:'User does not exists'});
+      return next(err);
+    }
+    let existingUser = await User.findById(req.user._id);
+    let update = {
+      password: await commonService.encryptPassword(req.body.password)
+    }
+      let registeredUser = await User.findByIdAndUpdate(req.user._id,update,{new:true});
+      res.send({
+        success:true,
+        user:registeredUser
+      })
+    
+  }catch(err){
+    return next(err);
+  }
+
+}
   
   
 /**
@@ -34,7 +58,7 @@ exports.update = async (req, res, next) => {
 exports.checkDomainAvailable = async (req, res, next) => {
   try{
     if(!req.user || !req.user._id){
-      let err = new Error({message:'User does not already exists'});
+      let err = new Error({message:'User does not exists'});
       return next(err);
     }
     let domainExists = await User.findOne({domainUrl:req.body.domainUrl}).exec();

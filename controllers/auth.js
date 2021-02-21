@@ -4,6 +4,7 @@ const User = require('../models/user');
 const validator = require('validator');
 const commonService = require('../util/commonService');
 const { Passport } = require('passport');
+const apiController = require('../controllers/api');
 
 exports.login = (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
@@ -79,28 +80,49 @@ exports.login = (req, res, next) => {
         return next(err);
     }
   }
-/**
- * OAuth Strategy Overview
- *
- * - User is already logged in.
- *   - Check if there is an existing account with a provider id.
- *     - If there is, return an error message. (Account merging not supported)
- *     - Else link new OAuth account with currently logged-in user.
- * - User is not logged in.
- *   - Check if it's a returning user.
- *     - If returning user, sign in and we are done.
- *     - Else check if there is an existing account with user's email.
- *       - If there is, return an error message.
- *       - Else create a new account.
- */
 
-/**
- * Linkedin Login
- 
- */
 
-exports.linkedinLogin = (req,res,next) => {
+exports.linkedinLogin = async (req,res,next) => {
+  let url = await commonService.generateLinkedinUrl('oauth');
+  res.json({
+    success:true,
+    url:url
+  })
+}
 
+
+  //check if user exists in the system
+  //if yes => check if email id is available
+  //else update everything
+  //login
+
+  /**
+   * If no
+   * Create a new user and login
+   */
+
+
+exports.linkedinLoginCallback = async (req,res,next) => {
+  try{
+    let apiResponse = await apiController.linkedinActions(req.body.code);
+    
+
+    if(apiResponse){
+      res.send({
+        success:true,
+        message:'Log in successful'
+      })
+    }else{
+      res.send({
+        success:false,
+        message:'Unable to login using Linkedin. Please use other options.'
+      })
+    }
+    
+  }catch(error){
+    
+  }
+  
 }
 
 /**
