@@ -47,7 +47,9 @@ const userSchema = new Schema({
     linkedin:{
         url:String,
         profileId:String,
-        accessToken:String
+        image:String,
+        accessToken:String,
+        expiresOn:String
     },
     githubURL:{
         type:String

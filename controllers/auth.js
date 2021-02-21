@@ -90,26 +90,48 @@ exports.linkedinLogin = async (req,res,next) => {
   })
 }
 
-
-  //check if user exists in the system
-  //if yes => check if email id is available
-  //else update everything
-  //login
-
-  /**
-   * If no
-   * Create a new user and login
-   */
-
-
 exports.linkedinLoginCallback = async (req,res,next) => {
   try{
     let apiResponse = await apiController.linkedinActions(req.body.code);
-    
-
     if(apiResponse){
+      let searchByEmail = {
+        email: apiResponse.email.toLowerCase()
+      } 
+      let existingUser = await User.findOne(searchByEmail);
+      if(!existingUser || !existingUser._id){
+        const user = new User({
+          email: apiResponse.email,
+          password: 'oauth',
+          firstName:apiResponse.firstName,
+          lastName:apiResponse.lastName || '',
+          linkedin:{
+            profileId:apiResponse.linkedinId,
+            image:apiResponse.linkedinImage,
+            accessToken:apiResponse.accessToken,
+            expiresOn:apiResponse.expiresOn
+          }
+        });
+        let url = await createDomainUrl(apiResponse.firstName,apiResponse.lastName);
+        user['slashUrl'] = url;
+        user['domainUrl'] = url;
+        existingUser = await user.save();
+      }else{
+        let update ={
+          linkedin:{
+            profileId:apiResponse.linkedinId,
+            image:apiResponse.linkedinImage,
+            accessToken:apiResponse.accessToken,
+            expiresOn:apiResponse.expiresOn
+          } 
+        }
+        existingUser = await User.findByIdAndUpdate(existingUser._id,update,{new :true})
+      }
+      req.logIn(existingUser,(err) => {
+        if(err)next(err);
+      })
       res.send({
         success:true,
+        user:existingUser,
         message:'Log in successful'
       })
     }else{
@@ -120,7 +142,7 @@ exports.linkedinLoginCallback = async (req,res,next) => {
     }
     
   }catch(error){
-    
+    return next(err);
   }
   
 }
@@ -165,14 +187,14 @@ exports.signup = async (req, res, next) => {
     user.slashUrl = url;
     user.domainUrl = url;
       
-      let registeredUser = await user.save();
-      req.logIn(registeredUser,(err) => {
-        if(err)next(err);
-      })
-      res.send({
-        success:true,
-        user:registeredUser
-      })
+    let registeredUser = await user.save();
+    req.logIn(registeredUser,(err) => {
+      if(err)next(err);
+    })
+    res.send({
+      success:true,
+      user:registeredUser
+    })
   }catch(err){
     return next(err);
   }
@@ -191,4 +213,5 @@ async function createDomainUrl(firstName,lastName){
       }
     }
   }
+  return firstName;
 }

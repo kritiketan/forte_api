@@ -1,4 +1,5 @@
 const axios = require('axios').default;
+const moment = require('moment');
 // const url = require('url');
 // const params = new url.URLSearchParams({ foo: 'bar' });
 // axios.post('http://something.com/', params.toString());
@@ -18,20 +19,21 @@ const instance = axios.create({
 
 exports.linkedinActions = async (code)=>{
     try{
-        let accessToken = await getLnToken(code);
-        if(accessToken){
-            let profile = await getLnProfile(accessToken);
-            let email = await getLnEmailAddress(accessToken);
+        let token = await getLnToken(code);
+        if(token.access_token){
+            let profile = await getLnProfile(token.access_token);
+            let email = await getLnEmailAddress(token.access_token);
             if(profile && email){
-                console.log('Profile',profile);
-                console.log('Email',email);
                 let linkedinDetails = {
                     firstName:profile.localizedFirstName,
                     lastName:profile.lastName.localized.en_US,
                     linkedinId:profile.id,
                     email:email.emailAddress,
-                    linkedinImage:profile.profilePicture.displayImage
+                    linkedinImage:profile.profilePicture.displayImage,
+                    accessToken:token.access_token,
+                    expiresOn:moment().add(token.expires_in, 'seconds').format(),
                 }
+                console.log(linkedinDetails)
                 return linkedinDetails;
             }
         }
@@ -47,7 +49,7 @@ async function getLnToken(code){
         axios.request(url)
         .then((response)=>{
             if(response.status == 200 && response.data && response.statusText == 'OK'){
-                resolve(response.data.access_token)
+                resolve(response.data)
             }else{
                 reject(false)
             }
