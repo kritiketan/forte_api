@@ -34,7 +34,7 @@ mongoose.set('useFindAndModify', false);
 mongoose.set('useCreateIndex', true);
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useUnifiedTopology', true);
-mongoose.connect(process.env.MONGODB_URI);
+mongoose.connect(process.env.MONGODB_ATLAS_URI);
 db.on('error',(err)=>{
     console.error(err);
     console.log('%s MongoDB connection error. Please make sure MongoDB is running.', chalk.red('✗'));
@@ -70,7 +70,7 @@ app.use(session({
     cookie: { maxAge: 1209600000 }, // two weeks in milliseconds
     saveUninitialized:true,
     store: new MongoStore({
-        url: process.env.MONGODB_URI,
+        url: process.env.MONGODB_ATLAS_URI,
         autoReconnect: true,
         collection: 'sessions'
       })

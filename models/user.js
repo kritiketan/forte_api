@@ -52,11 +52,13 @@ const userSchema = new Schema({
         expiresOn:String
     },
     google:{
+        url:String,
         authToken:String,
         profileId:String,
         image:String
     },
     facebook:{
+        url:String,
         authToken:String,
         profileId:String,
         image:String

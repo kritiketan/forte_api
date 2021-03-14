@@ -27,3 +27,4 @@
 .history/*
 
 *.txt
+.env
