@@ -51,9 +51,9 @@ db.once('open',()=>{
 
 app.set('port', process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080)
 app.use(logger('dev'));
-app.use(express.static('public'))
-app.use(express.json())
-app.use(express.urlencoded({extended:true}))
+app.use(express.static('public'));
+app.use(express.json());
+app.use(express.urlencoded({extended:true}));
 app.use(cors(
     {   
         origin:"*",
