@@ -283,3 +283,24 @@ async function createDomainUrl(firstName,lastName){
   }
   return firstName;
 }
+
+
+/**
+ * POST /signup
+ * Create a new local account.
+ */
+exports.waitlist = async (req, res, next) => {
+  try{
+  
+    let existingUser = await User.findOne({ email: req.user.id });
+    //send welcome email and add email to unregistered users list
+    res.send({
+      success:true,
+      user:existingUser
+    })
+  }catch(err){
+    return next(err);
+  }
+  
+  
+};

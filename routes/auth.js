@@ -10,6 +10,7 @@ router.post('/forgot',authController.forgotPassword)
 router.post('/changePassword',authController.changePassword)
 router.post('/signup',authController.signup)
 router.get('/logout',authController.logout)
+router.get('/waitlist',authController.waitlist)
 
 
 router.get('/linkedin',authController.linkedinLogin)
